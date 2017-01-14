@@ -16,7 +16,11 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>jersey-XMLExample-serlvet</servlet-name>
-    <url-pattern>/rest/*</url-pattern>
+    <url-pattern>/services/*</url-pattern>
+  </servlet-mapping>
+  
+    <servlet-mapping>
+    <servlet-name>jersey-XMLExample-serlvet</servlet-name>
     <url-pattern>/location/*</url-pattern>
   </servlet-mapping>
   

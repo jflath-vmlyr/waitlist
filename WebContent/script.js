@@ -15,14 +15,14 @@
 	});
 
 	function workCustomer(uuid) {
-		var url = "/rest/WaitList/Service/serviceCustomer/" + uuid;
+		var url = "/WaitList/services/Service/serviceCustomer/" + uuid;
 		$.getJSON(url, function(data) {
 			getList();
 		});
 	}
 
 	function deleteCustomer(uuid) {
-		var url = "/rest/WaitList/Service/deleteCustomer/" + uuid;
+		var url = "/WaitList/services/Service/deleteCustomer/" + uuid;
 		$.getJSON(url, function(data) {
 			getList();
 		});
@@ -38,7 +38,7 @@
 	function addUser() {
 		if( isValidPhone( $('#phoneNumber').val() )) {
 			console.log( "valid phone");
-			var url = "/rest/WaitList/Service/addCustomer?firstName="
+			var url = "/WaitList/services/Service/addCustomer?firstName="
 					+ $('#firstName').val() + "&lastName=" + $('#lastName').val()
 					+ "&phoneNumber=" + $('#phoneNumber').val();
 	
@@ -52,7 +52,7 @@
 	}
 
 	function getList() {
-		url = "/rest/WaitList/Service/customerList"
+		url = "/WaitList/services/Service/customerList"
 		$.getJSON(
 			url,
 			function(data) {
@@ -79,7 +79,7 @@
 					$('#waitingList').html(listHtml);
 				});
 		
-		url = "/rest/WaitList/Service/servicedList"
+		url = "/WaitList/services/Service/servicedList"
 			$.getJSON(
 				url,
 				function(data) {

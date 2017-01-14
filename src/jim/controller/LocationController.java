@@ -7,11 +7,14 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
+//@Path("/location")
+@Path("/{location}")
+//http://localhost:8080/WaitList/location/abq
 public class LocationController {
 	
 
 	@GET
-	@Path("/waitList/{location}")
+
 	public Response viewWaitList(@PathParam("location")String location ){
 		try{
 			return Response.temporaryRedirect( new URI("../index.html?location="+location)).build();

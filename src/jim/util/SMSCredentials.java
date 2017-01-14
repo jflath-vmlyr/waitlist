@@ -7,7 +7,7 @@ public class SMSCredentials {
 	private boolean test = true;
 	
 	public SMSCredentials(){
-//		test=false;
+		test=false;
 	}
 	
     public String getAccountSid() {
