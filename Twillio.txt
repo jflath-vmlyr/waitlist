@@ -1,0 +1,10 @@
+
+SID=AC5324997ab13479ec75f3190681c28d72
+AUTH=b85cf43700d2a5fa3241b3ba1c18e271
+Number=18166563912
+
+
+So it does appear that we are hitting it, though I'm not seeing errors. 
+To give you some clarification if we weren't able to reach your URL at all the inbound messages would see issue such as a notification in your debugger. 
+If we weren't able to hit it at all then the messages wouldn't come inbound. 
+I'd suggest reviewing your server logs for anything inbound as well as checking our documentation here; https://www.twilio.com/docs/api/twiml/sms/twilio_request

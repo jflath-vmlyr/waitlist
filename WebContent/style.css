@@ -1,0 +1,55 @@
+
+.userInput {
+	font-size: 18px;
+	height: 30px;
+	width: 150px;
+	text-align: center;
+}
+
+body {
+	text-align: center;
+	color: white;
+	font-size: 18px;
+	background-color: black;
+	margin: 0 auto;
+}
+
+button {
+	background-color: green;
+	border: none;
+	color: white;
+	padding: 15px 32px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 16px;
+	margin: 4px 2px;
+	cursor: pointer;
+}
+
+.errorText {
+	color: red;
+}
+
+.newSection {
+	margin-top: 20px;
+	margin-bottom: 50px;
+}
+
+.smallText {
+	font-size: small;
+}
+
+.medText {
+	font-size: medium;
+	.
+	labelText
+	{
+	margin-bottom
+	:
+	20;
+}
+
+.myTable {
+	margin: 0px auto;
+}

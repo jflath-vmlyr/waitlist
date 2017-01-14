@@ -1,0 +1,39 @@
+<html>
+
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+	<script src="/WaitList/script.js"></script>
+	<link rel="stylesheet" href="/WaitList/style.css">
+
+</head>
+
+<body>
+		<div class="newSection">
+			<div class="errorText" id="errorText"></div>
+			<input class="userInput" type="text" id="firstName" name="firstName" />
+			<div class="labelText">First Name</div> 
+			<input class="userInput" type="text" id="lastName" name="lastName" />
+			<div class="labelText">Last Name</div> <input class="userInput" type="text" id="phoneNumber" name="phoneNumber" />
+			<div class="labelText">Phone Number</div>
+			<button id="submitButton">Add Me, please!</button>
+		</div>
+	
+		<div class="newSection">
+			<div class="medText">Current Waiting List<br/><span class="medText" id="waitingList"></span><br/></div>
+		</div>
+		
+		<div class="newSection">
+			Store View<br/>
+			Clicking Service triggers an SMS to the next customer waiting.
+			<div class="medText" id="storeView"></div>
+		</div>
+		
+		<div class="newSection">
+			<br/>Serviced or Deleted list
+			<div class="medText" id="servicedList"></div>
+		</div>
+
+</body>
+</html>

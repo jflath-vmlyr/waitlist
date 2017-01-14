@@ -1,0 +1,67 @@
+<project name="MyProject" default="" basedir=".">
+	<description>
+		simple example build file
+	</description>
+	<!-- set global properties for this build -->
+
+	<property name="warName" value="WaitList" />
+	
+	<property name="destDir" value="/Users/jflath/Google Drive/workspaces/deploy" />
+	<property name="buildDir" value="build" />
+	<property name="webLibDir" value="WEB-INF/lib" />
+
+	<target name="buildAndDeploy" description="Just do it all">
+		<antcall target="init" />
+		<antcall target="compile" />
+		<antcall target="war" />
+		<antcall target="pushToOpenShift" />
+		<antcall target="clean" />
+	</target>
+
+	<target name="init">
+		<tstamp>
+			<format property="NOW" pattern="MMddyy-HHmmss" locale="en,US" />
+		</tstamp>
+		<mkdir dir="${destDir}/${buildDir}/${NOW}" />
+		<echo message="${NOW}" file="${basedir}/WebContent/version.html" />
+	</target>
+
+	<target name="compile" depends="init" description="Compile the source">
+		<path id="master-classpath">
+			<fileset dir="${basedir}/WebContent/WEB-INF/lib">
+				<include name="*.jar" />
+			</fileset>
+
+			<fileset dir="/workspaces/tools/apache-tomcat-8.0.15/lib">
+				<include name="*.jar" />
+			</fileset>
+		</path>
+
+		<!-- Compile the java code from ${src} into ${build} -->
+		<javac srcdir="${basedir}/src" destdir="${destDir}/${buildDir}/${NOW}" includeantruntime="false">
+			<classpath refid="master-classpath" />
+		</javac>
+	</target>
+
+	<target name="war" depends="compile" description="Build the war">
+		<war destfile="${destDir}/${warName}.war" webxml="${basedir}/WebContent/WEB-INF/web.xml"
+			update="true">
+			<classes dir="${destDir}/${buildDir}/${NOW}" />
+			<fileset dir="${basedir}/WebContent">
+				<exclude name="WEB-INF/web.xml" />
+			</fileset>
+		</war>
+	</target>
+
+	<target name="pushToOpenShift" depends="war">
+		<exec executable="/bin/ksh">
+			<arg value="/Users/jflath/scripts/deploy.sh" />
+		</exec>
+	</target>
+
+	<target name="clean" depends="pushToOpenShift" description="Clean up the temp dir">
+		<!-- Delete the ${build} and ${dist} directory trees -->
+		<delete dir="${destDir}/${buildDir}/${NOW}" />
+		<delete file="${basedir}/WebContent/version.html" />
+	</target>
+</project>
