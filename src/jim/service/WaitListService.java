@@ -1,67 +1,65 @@
 package jim.service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
+import jim.dao.sql.DBConnectionUtil;
 import jim.domain.Customer;
 import jim.util.SMSClient;
 import jim.util.SMSStaticMessageList;
 
 public class WaitListService {
 
-	private static Map<String, Customer> customerMap = Collections.synchronizedMap( new LinkedHashMap<String,Customer>());
-	private static Map<String, Customer> servicedMap = Collections.synchronizedMap( new LinkedHashMap<String,Customer>());
+	private List<Customer> waitListNames = null;
+	private List<Customer> finishedMap = null;
+	
+	
+	public List<String> getLocationList(){
+		DBConnectionUtil dbConn = new DBConnectionUtil();
+		List<String> retVal = dbConn.getLocationList();
+		
+		return retVal;
+	}
 	
 	public int addCustomerToList( Customer customer ){
-		customerMap.put(customer.getID(), customer);
+
+		DBConnectionUtil dbConn = new DBConnectionUtil();
+		int waitCount = dbConn.save(customer);
 		
-		if( customerMap.size() > 1 ){
-			sendSMS(customer, SMSStaticMessageList.getSignupMessage(customer, customerMap.size() ) );
+		if( waitCount > 1 ){
+			sendSMS(customer, SMSStaticMessageList.getSignupMessage(customer, waitCount ) );
 		} else {
-			notifyNext();
+			notifyNext( customer.getLocation());
 		}
-		return customerMap.size(); 
+		return waitCount; 
 	}
 	
-	public Customer getCustomerByPhone( String phone ){
-		Iterator<Customer> it = customerMap.values().iterator();
-		int position = 1;
-		while( it.hasNext()){
-			Customer c = it.next();
-			if( phone.equals( c.getPhoneNumber() ) ){
-				c.setPosition(position);
-				return c;
-			}
-			position++;
-		}
-		return null;
+	public Customer getCustomerByPhone( String phone, String location ){
+		Customer c = new DBConnectionUtil().getCustomerByPhone( phone, location);
+
+		return c;
 	}
 	
-	public List<Customer> getWaitListNames(){
-		List<Customer> list = new ArrayList<Customer>(customerMap.values());
+	public List<Customer> getWaitListNames(String location ){
+		if( waitListNames == null )
+			waitListNames = new DBConnectionUtil().getActiveCustomers(location);
 		
-		return list;
+		return waitListNames;
 	}
 	
-	public List<Customer> serviceCustomer( String uuid ){
+	public List<Customer> serviceCustomer( String uuid, String location ){
 		System.out.println("In the serviceController service");
-		Customer c = customerMap.remove(uuid);
-		c.setDisposition("SERVICED");
-		servicedMap.put(uuid, c);
+		// update the customer by UUID and set disposition==SERVICED
+		new DBConnectionUtil().updateDisposition( uuid, location, "SERVICED");
 		
-		notifyNext();
+		notifyNext(location);
 		
-		return getWaitListNames();		
+		return getWaitListNames(location);		
 	}
 	
-	private void notifyNext(){
-		if( !getWaitListNames().isEmpty() ) {
+	private void notifyNext(String location){
+		if( !getWaitListNames(location).isEmpty() ) {
 			System.out.println("About to call sendSMS");
-			Customer next = getWaitListNames().get(0);
+			Customer next = getWaitListNames(location).get(0);
 			if( !next.isNotifiedNext() ){
 				sendSMS( next, SMSStaticMessageList.getUpNextMessage( next ) );
 				next.setNotifiedNext();
@@ -70,50 +68,30 @@ public class WaitListService {
 		}
 	}
 	
-	public void deleteCustomerByPhone( String phone ){
-		concreteDeleteCustomerByPhone( phone );
-		notifyNext();
+	public void deleteCustomerByPhone( String phone, String location ){
+		concreteDeleteCustomerByPhone( phone, location );
+		notifyNext(location);
 	}
 	
-	public void concreteDeleteCustomerByPhone(String phone){
-		System.out.println("In the delete by phone");
-		Iterator<Customer> it = customerMap.values().iterator();
-		String uuid = null;
-		while( it.hasNext()){
-			Customer c = it.next();
-			System.out.println("Checking customer " + c.getPhoneNumber());
-			if( phone.equals( c.getPhoneNumber() ) ){
-				System.out.println("Found a match");
-				uuid=c.getID();
-				break;
-			}
-		}
-		
-		System.out.println("Out of the loop");
-		if( uuid != null ) {
-			System.out.println("UUID was not null, going to delete");
-			Customer c = customerMap.remove(uuid);
-			c.setDisposition("DELETED via Text");
-			servicedMap.put(uuid, c);
-			System.out.println("Done with the delete");
-			concreteDeleteCustomerByPhone( phone);
-		}
+	public void concreteDeleteCustomerByPhone(String phone, String location){
+		DBConnectionUtil dbUtil = new DBConnectionUtil();
+		Customer customer = dbUtil.getCustomerByPhone(phone, location);
+		if( customer != null )
+			dbUtil.updateDisposition(customer.getID(), location, "DELETED FROM TEXT");
 	}
 	
-	public List<Customer> deleteCustomer( String uuid ){
+	public List<Customer> deleteCustomer( String uuid, String location ){
 		System.out.println("In the deleteCustomer service");
-		Customer c = customerMap.remove(uuid);
-		c.setDisposition("DELETED");
-		servicedMap.put(uuid, c);
+		DBConnectionUtil dbUtil = new DBConnectionUtil();
+		dbUtil.updateDisposition(uuid, location, "DELETED");
 		
-		notifyNext();
-		return getWaitListNames();		
+		notifyNext(location);
+		return getWaitListNames(location);	
+
 	}
 	
-	public List<Customer> getAllListNames(){
-		List<Customer> list = new ArrayList<Customer>(servicedMap.values());
-		
-		return list;
+	public List<Customer> getFinishedListNames(String location){
+		return new DBConnectionUtil().getServicedCustomers(location);
 	}
 	
 	private void sendSMS( Customer customer, String message ){

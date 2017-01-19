@@ -24,20 +24,20 @@ public class WaitListController {
 
 	private WaitListService waitListService = new WaitListService();
 
-	
 	// http://localhost:8080/WaitList/rest/Service/addCustomer?firstName=Jim&lastName=Flath&phoneNumber=8166741125
 	@GET
 	@Path("/addCustomer")
 	@Produces("application/json")
 	public Response addCustomer(@QueryParam("firstName") String firstName,
 			@QueryParam("lastName") String lastName,
-			@QueryParam("phoneNumber") String phoneNumber) {
+			@QueryParam("phoneNumber") String phoneNumber,
+			@QueryParam("location") String location) {
 
 		System.out.println(firstName + " - " + lastName + " - " + phoneNumber);
 		if (phoneNumber.isEmpty() || firstName.isEmpty() || firstName.isEmpty())
 			return Response.status(500).entity("ERROR").build();
 		else {
-			int waitPosition = waitListService.addCustomerToList(new Customer(firstName, lastName, phoneNumber));
+			int waitPosition = waitListService.addCustomerToList(new Customer(firstName, lastName, phoneNumber, location));
 
 			String answer = "{ \"waitPosition\": \"" + waitPosition + "\"}";
 			System.out.println("Returning: " + answer);
@@ -48,74 +48,53 @@ public class WaitListController {
 
 	// http://localhost:8080/WaitList/rest/Service/customerList
 	@GET
-	@Path("/customerList")
+	@Path("/customerList/{location}")
 	@Produces("application/json")
-	public Response getList() {
-		return Response.status(200).entity(waitListService.getWaitListNames())
+	public Response getList(@PathParam("location") String location) {
+		return Response.status(200).entity(waitListService.getWaitListNames(location))
 				.build();
 	}
 
+	@GET
+	@Path("/locationList")
+	@Produces("application/json")
+	public Response getLocationList(){
+		return Response.status(200).entity(waitListService.getLocationList()).build();
+	}
+	
 	// http://localhost:8080/WaitList/rest/Service/customerList
 	@GET
-	@Path("/servicedList")
+	@Path("/servicedList/{location}")
 	@Produces("application/json")
-	public Response getServicesList() {
-		return Response.status(200).entity(waitListService.getAllListNames())
-				.build();
+	public Response getServicedList(@PathParam("location") String location ) {
+		return Response.status(200).entity(waitListService.getFinishedListNames( location )).build();
 	}
 
 	// http://localhost:8080/WaitList/rest/Service/serviceCustomer/:UUID
 	@GET
-	@Path("/serviceCustomer/{uuid}")
+	@Path("/serviceCustomer/{location}/{uuid}")
 	@Produces("application/json")
-	public Response serviceCustomer(@PathParam("uuid") String uuid) {
+	public Response serviceCustomer(@PathParam("location") String location, @PathParam("uuid") String uuid) {
 
 		System.out.println("In the serviceController, again");
-		waitListService.serviceCustomer(uuid);
+		waitListService.serviceCustomer(uuid, location);
 		System.out.println("Leaving the serviceController");
 
-		return Response.status(200).entity(waitListService.getWaitListNames())
+		return Response.status(200).entity(waitListService.getWaitListNames(location))
 				.build();
 	}
 
 	// http://localhost:8080/WaitList/rest/Service/serviceCustomer/:UUID
 	@GET
-	@Path("/deleteCustomer/{uuid}")
+	@Path("/deleteCustomer/{location}/{uuid}")
 	@Produces("application/json")
-	public Response deleteCustomer(@PathParam("uuid") String uuid) {
+	public Response deleteCustomer(@PathParam("uuid") String uuid, @PathParam("location") String location) {
 
 		System.out.println("In the deleteCustomer, again");
-		waitListService.deleteCustomer(uuid);
+		waitListService.deleteCustomer(uuid, location);
 		System.out.println("Leaving the deleteCustomer");
 
-		return Response.status(200).entity(waitListService.getWaitListNames())
+		return Response.status(200).entity(waitListService.getWaitListNames(location))
 				.build();
 	}
-
-	/*
-	 * {customers:[ { "customer": "1 - b b b - 11:06:25234929”}, { "customer":
-	 * "2 - a a a - 11:06:30230627”}, { "customer": "3 - JIm Flath 8885551212 -
-	 * 11:08:32108092”}, { "customer": "4 - arun M 4445556666 - 11:09:2851913”},
-	 * ]}
-	 */
-
-	//
-	// @GET
-	// @Path("/callback")
-	// public Response callback( @QueryParam("distance") String distance,
-	// @QueryParam("pace") String pace, @QueryParam("time")String time ) {
-	//
-	// pace = pace.replaceAll(":", ".");
-	//
-	// if( pace.isEmpty() && time.isEmpty() )
-	// return Response.status(500).entity( "ERROR" ).build();
-	// else {
-	// FitScore fitScoreAnswer = fitScoreService.calculateFitScore( distance,
-	// pace, time );
-	//
-	// return Response.status(200).entity(
-	// fitScoreAnswer.getFitScore().toString() ).build();
-	// }
-	//
-	// }
 }

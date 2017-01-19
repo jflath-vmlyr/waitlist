@@ -1,4 +1,16 @@
 
+.locationName {
+	color: red;
+}
+
+.waitingList {
+	color: green;
+}
+
+.servicedList {
+	color: yellow;
+}
+
 .userInput {
 	font-size: 18px;
 	height: 30px;
