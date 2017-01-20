@@ -15,23 +15,23 @@ public class SMSStaticMessageList {
 	}
 	
 	public static String getSMSAddErrorResponse(){
-		return createResponse( "We were unable to add you to the Cabela's Firearms Outfitter queue, please reply with ADD [FirstName] [LastName].");
+		return createResponse( "We were unable to add you to the queue, please reply with ADD [FirstName] [LastName].");
 	}
 	
 	public static String getStatusSMSResponse(Customer customer){
 		if( customer == null ){
 			return createResponse( "You are not currently on our list. Reply with ADD [FirstName] [LastName] to be added.");
 		} else { 
-			return createResponse( createStandardGreeting( customer) + ", you are currently number " + customer.getPosition() +" in the queue for the Cabela's Firearms Outfitter. " + getRemoveText());
+			return createResponse( createStandardGreeting( customer) + ", you are currently number " + customer.getPosition() +" in the queue for the. " + getRemoveText());
 		}
 	}
 	
 	public static String getSignupMessage(Customer customer, int listSize ){
-		return createStandardGreeting( customer)  + " Your appointment with a Cabela's Firearms Outfitter is in approximately " + calculateDelay( listSize ) + " minutes.  We'll text you again when it's your turn." + getRemoveText();
+		return createStandardGreeting( customer)  + " Your appointment is in approximately " + calculateDelay( listSize ) + " minutes.  We'll text you again when it's your turn." + getRemoveText();
 	}
 	
 	public static String getUpNextMessage( Customer customer){
-		return createStandardGreeting( customer) + " You are next at the Firearms Outfitter, expect another " + calculateDelay( 1 ) + " minute delay, please head back to the Firearms Outfitter." + getRemoveText();
+		return createStandardGreeting( customer) + " You are next at the expect another " + calculateDelay( 1 ) + " minute delay, please head back to the." + getRemoveText();
 	}
 	
 	private static int calculateDelay( int listSize ){

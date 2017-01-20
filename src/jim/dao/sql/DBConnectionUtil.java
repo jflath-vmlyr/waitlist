@@ -47,10 +47,7 @@ public class DBConnectionUtil {
 	
 	//http://www.mkyong.com/jdbc/jdbc-statement-example-insert-a-record/
 	public int save(Customer customer ){
-		if( customer.isPersistent() )
-			updateCustomer( customer );
-		else
-			insertCustomer( customer );
+		insertCustomer( customer );
 		
 		return getWaitCount( customer.getLocation());
 	}	
@@ -64,6 +61,26 @@ public class DBConnectionUtil {
 		else
 			return null;
 //		
+	}
+	
+	public Customer getCustomerById( String id, String location){
+		String sql = "Select * from waitingList where disposition='WAITING' and location='"+location+"' and uuid='"+id+"'";
+		
+		List<Customer> list = getCustomerList(sql);
+		if( list.size() > 0 )
+			return list.get(0);
+		else
+			return null;	
+	}
+	
+	public Customer getNextCustomer(String location){
+		String sql = "SELECT * FROM `waitingList` WHERE waitStartTime = (select min(waitStartTime) from waitingList where disposition='waiting' and location='"+location+"')";
+		System.out.println( "Get Next [" + sql +"]");
+		List<Customer> list = getCustomerList(sql);
+		if( list.size() > 0 )
+			return list.get(0);
+		else
+			return null;	
 	}
 	
 	public int getWaitCount( String location ){
@@ -96,7 +113,7 @@ public class DBConnectionUtil {
 		return retVal;
 	}
 	
-	public boolean updateDisposition( String uuid, String location, String disposition){
+	public Customer updateDisposition( String uuid, String location, String disposition){
 		
 		String sql;
 		if( !disposition.equalsIgnoreCase("WAITING" ) )
@@ -104,7 +121,7 @@ public class DBConnectionUtil {
 		else
 			sql = "update waitingList set disposition='" + disposition + "' where uuid='" + uuid + "' and location='" + location +"'";
 		
-		boolean retVal = false;
+		Customer retVal = null;
 		
 		System.out.println("updateDisposition [" + sql + "]");
 		Connection connection = null;
@@ -115,7 +132,7 @@ public class DBConnectionUtil {
 				connection = getConnection();
 				statement = connection.createStatement();
 				int result = statement.executeUpdate(sql);
-				retVal = ( result > 0 ) ? true : false;
+				retVal = getCustomerById(uuid, location);
 				
 			} catch( Exception e){
 				e.printStackTrace();
@@ -174,13 +191,7 @@ public class DBConnectionUtil {
 		
 		return list;
 	}
-	
-	private boolean updateCustomer( Customer customer ){
 		
-		
-		return true;
-	}
-	
 	private boolean insertCustomer( Customer customer){
 		String sql = "INSERT INTO `waitingList` " + mapCustomerToSQL( customer );
 		try {
@@ -190,7 +201,6 @@ public class DBConnectionUtil {
 			return false;
 		}
 	}
-//	insert into waitListUser (uuid, location, firstName, lastName, phone, waitStartTime, waitEndTime, disposition, lastNotification) + VALUES ("19f08118-0357-441c-8597-1a2eece52b0e", "null", "Jim", "Flath", "18166741125", "10:40:08, "WAITING", "UpNext")
 	private String mapCustomerToSQL( Customer customer ){
 		return "(`uuid`, `location`, `firstName`, `lastName`, `phone`, `waitStartTime`, `waitEndTime`, `disposition`, `lastNotification`) values ('" 
 				+ customer.getID() + "', '"  + customer.getLocation().toUpperCase() + "', '" + customer.getFirstName() + "', '" 
@@ -254,8 +264,8 @@ public class DBConnectionUtil {
 		try {
 			System.out.println("Attempting to actually, getConnection");
 			
-//			connection = DriverManager.getConnection("jdbc:mysql://127.9.252.130:3306/waitListUser","waitListUser", "Pass1234");
-			connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/waitListUser","waitListUser", "Pass1234");
+			connection = DriverManager.getConnection("jdbc:mysql://127.9.252.130:3306/waitListUser","waitListUser", "Pass1234");
+//			connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/waitListUser","waitListUser", "Pass1234");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

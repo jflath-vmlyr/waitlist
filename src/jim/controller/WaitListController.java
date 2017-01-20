@@ -24,7 +24,7 @@ public class WaitListController {
 
 	private WaitListService waitListService = new WaitListService();
 
-	// http://localhost:8080/WaitList/rest/Service/addCustomer?firstName=Jim&lastName=Flath&phoneNumber=8166741125
+	// http://localhost:8080/WaitList/services/Service/addCustomer?firstName=Jim&lastName=Flath&phoneNumber=8166741125
 	@GET
 	@Path("/addCustomer")
 	@Produces("application/json")
@@ -46,7 +46,7 @@ public class WaitListController {
 
 	}
 
-	// http://localhost:8080/WaitList/rest/Service/customerList
+	// http://localhost:8080/WaitList/services/Service/customerList
 	@GET
 	@Path("/customerList/{location}")
 	@Produces("application/json")
@@ -62,7 +62,7 @@ public class WaitListController {
 		return Response.status(200).entity(waitListService.getLocationList()).build();
 	}
 	
-	// http://localhost:8080/WaitList/rest/Service/customerList
+	// http://localhost:8080/WaitList/services/Service/customerList
 	@GET
 	@Path("/servicedList/{location}")
 	@Produces("application/json")
@@ -70,7 +70,7 @@ public class WaitListController {
 		return Response.status(200).entity(waitListService.getFinishedListNames( location )).build();
 	}
 
-	// http://localhost:8080/WaitList/rest/Service/serviceCustomer/:UUID
+	// http://localhost:8080/WaitList/services/Service/serviceCustomer/:UUID
 	@GET
 	@Path("/serviceCustomer/{location}/{uuid}")
 	@Produces("application/json")
@@ -80,9 +80,24 @@ public class WaitListController {
 		waitListService.serviceCustomer(uuid, location);
 		System.out.println("Leaving the serviceController");
 
-		return Response.status(200).entity(waitListService.getWaitListNames(location))
-				.build();
+		return Response.status(200).entity(waitListService.getWaitListNames(location)).build();
 	}
+	
+	// http://localhost:8080/WaitList/services/Service/serviceNext/:location
+	@GET
+	@Path("/serviceNext/{location}")
+	@Produces("application/json")
+	public Response serviceNextCustomer(@PathParam("location") String location) {
+
+		System.out.println("In the serviceController, again");
+		Customer customer = waitListService.serviceNextCustomer(location.toUpperCase());
+		System.out.println("Leaving the serviceController");
+
+		if( customer != null )
+			return Response.status(200).entity(customer).build();
+		else
+			return Response.status(404).entity("no customers").build();
+	}	
 
 	// http://localhost:8080/WaitList/rest/Service/serviceCustomer/:UUID
 	@GET

@@ -46,14 +46,26 @@ public class WaitListService {
 		return waitListNames;
 	}
 	
-	public List<Customer> serviceCustomer( String uuid, String location ){
+	public Customer serviceCustomer( String uuid, String location ){
 		System.out.println("In the serviceController service");
 		// update the customer by UUID and set disposition==SERVICED
-		new DBConnectionUtil().updateDisposition( uuid, location, "SERVICED");
+		DBConnectionUtil dbConn = new DBConnectionUtil();
+		Customer c = dbConn.updateDisposition( uuid, location, "SERVICED");
 		
 		notifyNext(location);
 		
-		return getWaitListNames(location);		
+		return c;		
+	}
+	
+	public Customer serviceNextCustomer( String location ){
+		System.out.println("In the serviceController service");
+		// update the customer by UUID and set disposition==SERVICED
+		DBConnectionUtil dbConn = new DBConnectionUtil();
+		Customer customer = dbConn.getNextCustomer( location );
+		if( customer != null )
+			serviceCustomer(customer.getID(), location);
+		
+		return customer;		
 	}
 	
 	private void notifyNext(String location){
